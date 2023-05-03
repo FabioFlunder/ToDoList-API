@@ -1,0 +1,139 @@
+openapi: 3.0.3
+info:
+  title: ToDo-Listen
+  description: Dient zum Erstellen von ToDO-Listen
+  contact:
+    email: fabio.scholle@es2000.de
+  version: '0.1'
+servers:
+  - url: http://127.0.0.1:5000
+  # Paths brauchen VIEL mehr Arbeit
+paths:
+  /todo-list:
+    post:
+      summary: Fuegt eine neue ToDo-Liste hinzu
+      operationId: postNewList
+      
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/list'
+                
+  /todo-list/{list_id}:
+    get:
+      summary: Liefert alle Eintraege einer ToDo-Liste zurueck
+      operationId: fetchList
+      parameters:
+        - in: path
+          name: list_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/list'
+    delete:
+      description: Loescht eine komplette ToDo-Liste mit allen Eintraegen
+      operationId: deleteList
+      parameters:
+        - in: path
+          name: list_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: List not found
+  /todo-list/{list_id}/entry:
+    post:
+      summary: Fuegt einen Eintrag zu einer bestehenden ToDo-Liste hinzu
+      operationId: postNewEntry
+      parameters:
+        - in: path
+          name: list_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                entryName: 
+                  type: string
+                entryDescription:
+                  type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/list'
+  /todo-list/{list_id}/entry/{entry_id}:
+    put:
+      summary: Aktualisiert einen bestehenden Eintrag
+      operationId: putEntry
+      parameters:
+        - in: path
+          name: list_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: entry_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+
+# Components scheinen fertig zu sein
+components:
+  schemas:
+    list:
+      type: object
+      properties:
+        listID:
+          type: string
+          $ref: '#/components/schemas/uuid'
+        listName:
+          type: string
+        listEntry:
+          type: array
+          items:
+            $ref: '#/components/schemas/entry'
+    entry:
+      type: object
+      properties:
+        entryID:
+          type: string
+          $ref: '#/components/schemas/uuid'
+        entryName:
+          type: string
+        entryDescription:
+          type: string
+    uuid:
+      type: string
+      pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+      # the regex above limits the length;
+      # however, some tools might require explicit settings:
+      minLength: 36
+      maxLength: 36
